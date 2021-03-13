@@ -53,6 +53,8 @@ export default class Chat extends React.Component {
   }
 
   render() {
+    let name = this.props.route.params.name;
+    this.props.navigation.setOptions({ title: name });
     return (
       <View style={{ flex: 1 }}>
         <GiftedChat
@@ -63,9 +65,10 @@ export default class Chat extends React.Component {
             _id: 1,
           }}
         />
-        { Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null}
+        {Platform.OS === "android" ? (
+          <KeyboardAvoidingView behavior="height" />
+        ) : null}
       </View>
     );
   }
 }
-
