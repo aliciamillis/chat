@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Platform, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 
 
@@ -35,13 +35,16 @@ export class Chat extends React.Component {
 
   render() {
     return (
-      <GiftedChat
-        messages={this.state.messages}
-        onSend={(messages) => this.onSend(messages)}
-        user={{
-          _id: 1,
-        }}
-      />
+      <View style={{ flex: 1 }}>
+        <GiftedChat
+          messages={this.state.messages}
+          onSend={(messages) => this.onSend(messages)}
+          user={{
+            _id: 1,
+          }}
+        />
+        { Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null}
+      </View>
     );
   }
 }
