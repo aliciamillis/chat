@@ -3,7 +3,7 @@ import { View, Platform, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 
 
-export class Chat extends React.Component {
+export default class Chat extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -39,10 +39,24 @@ export class Chat extends React.Component {
     }));
   }
 
+  renderBubble(props) {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: '#000'
+          }
+        }}
+      />
+    )
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
         <GiftedChat
+          renderBubble={this.renderBubble.bind(this)}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
           user={{
@@ -54,3 +68,4 @@ export class Chat extends React.Component {
     );
   }
 }
+
