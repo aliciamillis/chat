@@ -1,6 +1,6 @@
 import React from 'react';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
-import { Stylesheet, View, Text, Button, Platform, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, Text, Button, Platform, KeyboardAvoidingView } from 'react-native';
 
 const firebase = require('firebase');
 require('firebase/firestore');
@@ -83,7 +83,7 @@ export default class Chat extends React.Component {
         {...props}
         wrapperStyle={{
           right: {
-            backgroundColor: "yellow",
+            backgroundColor: '#F1F2F2',
           }
         }}
         textStyle={{
@@ -148,7 +148,7 @@ export default class Chat extends React.Component {
   }
 }
 
-const styles = Stylesheet.create({
+const styles = StyleSheet.create({
   loggedInText: {
     textAlign: 'center',
     color: 'white',
