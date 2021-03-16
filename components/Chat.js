@@ -6,7 +6,7 @@ import NetInfo from '@react-native-community/netinfo';
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import CustomActions from './CustomActions';
-import { Constants, MapView, Location, Permissions } from 'expo';
+import { Constants, MapView, Location } from 'expo';
 
 const firebase = require('firebase');
 require('firebase/firestore');
