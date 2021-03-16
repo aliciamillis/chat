@@ -41,7 +41,7 @@ export default class StartScreen extends React.Component {
               onChangeText={(name) => this.setState({ name })}
               value={this.state.name}
               placeholder='Your Name'
-              placeholderTextColor='lightgray'
+              placeholderTextColor='white'
             />
 
             <Text style={styles.backgroundText}> Choose Background Color: </Text>
@@ -117,13 +117,12 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontWeight: '300',
-    color: '#757083',
-    opacity: 0.5,
+    color: 'white',
   },
   backgroundText: {
     fontSize: 16,
     fontWeight: '300',
-    color: '#757083',
+    color: 'white',
     opacity: 1,
   },
   box1: {
