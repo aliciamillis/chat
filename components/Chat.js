@@ -1,6 +1,8 @@
 import React from 'react';
-import { GiftedChat, Bubble } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 import { StyleSheet, View, Text, Button, Platform, KeyboardAvoidingView } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 
 const firebase = require('firebase');
 require('firebase/firestore');
@@ -16,7 +18,8 @@ export default class Chat extends React.Component {
         name: '',
         avatar: '',
       },
-      loggedInText: 'Please wait, you are getting logged in.'
+      loggedInText: 'Please wait, you are getting logged in.',
+      isConnected: false
     }
     //connecting to database
     const firebaseConfig = {
@@ -73,7 +76,76 @@ export default class Chat extends React.Component {
     }),
       () => {
         this.addMessage();
+        this.saveMessages();
       });
+  }
+
+  async getMessages() {
+    let messages = '';
+    try {
+      messages = await AsyncStorage.getItem('messages') || [];
+      this.setState({
+        messages: JSON.parse(messages)
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  async saveMessages() {
+    try {
+      await AsyncStorage.setItem('messages', JSON.stringify(this.state.messages));
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async deleteMessages() {
+    try {
+      await AsyncStorage.removeItem('messages');
+      this.setState({
+        messages: []
+      })
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  componentDidMount() {
+    NetInfo.fetch().then(connection => {
+      if (connection.isConnected) {
+        console.log('online');
+      } else {
+        console.log('offline');
+      }
+    });
+    // Authenticates user via Firebase
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) {
+        await firebase.auth().signInAnonymously();
+      }
+      // Add user to state
+      this.setState({
+        user: {
+          _id: user.uid,
+          name: this.props.route.params.name,
+          avatar: 'https://placeimg.com/140/140/any'
+        },
+        messages: [],
+        loggedInText: `Hi ${this.props.route.params.name}, welcome to the chat app`,
+      });
+      this.referenceChatMessages = firebase.firestore().collection('messages');
+      // Listener for collection changes for current user
+      this.unsubscribe = this.referenceChatMessages.orderBy('createdAt', 'desc').onSnapshot(this.onCollectionUpdate);
+    });
+    this.getMessages();
+  }
+
+  componentWillUnmount() {
+    // Stops listening for authentication
+    this.unsubscribe();
+    // Stops listening for changes
+    this.authUnsubscribe();
   }
 
   // Renders sender's chat bubble with custom color
@@ -96,34 +168,17 @@ export default class Chat extends React.Component {
   }
 
 
-  componentDidMount() {
-    // Authenticates user via Firebase
-    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if (!user) {
-        await firebase.auth().signInAnonymously();
-      }
-      // Add user to state
-      this.setState({
-        user: {
-          _id: user.uid,
-          name: this.props.route.params.name,
-          avatar: 'https://placeimg.com/140/140/any'
-        },
-        messages: [],
-        loggedInText: `Hi ${this.props.route.params.name}, welcome to the chat app`,
-      });
-      this.referenceChatMessages = firebase.firestore().collection('messages');
-      // Listener for collection changes for current user
-      this.unsubscribe = this.referenceChatMessages.orderBy('createdAt', 'desc').onSnapshot(this.onCollectionUpdate);
-    });
+  renderInputToolbar(props) {
+    if (this.state.isConnected == false) {
+    } else {
+      return (
+        <InputToolbar
+          {...props}
+        />
+      );
+    }
   }
 
-  componentWillUnmount() {
-    // Stops listening for authentication
-    this.unsubscribe();
-    // Stops listening for changes
-    this.authUnsubscribe();
-  }
 
   render() {
     //startscreen.js props passed with onPress
