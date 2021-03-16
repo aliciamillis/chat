@@ -4,10 +4,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import StartScreen from './components/StartScreen';
 import Chat from './components/Chat';
+import CustomActions from './components/CustomActions';
+
 
 const Stack = createStackNavigator();
 
 export default class App extends Component {
+
+  renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
+  };
 
   render() {
     return (

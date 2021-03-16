@@ -70,6 +70,7 @@ export default class StartScreen extends React.Component {
 
 
             <Button
+              style={styles.button}
               color='white'
               title="Start Chatting"
               onPress={() => this.props.navigation.navigate('Chat', { name: this.state.name, color: this.state.color })}
