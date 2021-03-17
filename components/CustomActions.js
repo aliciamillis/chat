@@ -42,7 +42,7 @@ export default class CustomActions extends React.Component {
 
   imagePicker = async () => {
     // expo permission
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
     try {
       if (status === "granted") {
         // pick image
@@ -51,8 +51,8 @@ export default class CustomActions extends React.Component {
         }).catch((error) => console.log(error));
         // canceled process
         if (!result.cancelled) {
-          const imageUrl = await this.uploadImageFetch(result.uri);
-          this.props.onSend({ image: imageUrl });
+          this.storeImage(result.uri);
+
         }
       }
     } catch (error) {
@@ -65,7 +65,7 @@ export default class CustomActions extends React.Component {
   takePhoto = async () => {
     const { status } = await Permissions.askAsync(
       Permissions.CAMERA,
-      Permissions.CAMERA_ROLL
+      Permissions.MEDIA_LIBRARY
     );
     try {
       if (status === "granted") {
@@ -74,7 +74,7 @@ export default class CustomActions extends React.Component {
         }).catch((error) => console.log(error));
 
         if (!result.cancelled) {
-          const imageUrl = await this.uploadImageFetch(result.uri);
+          const imageUrl = await this.storeImage(result.uri);
           this.props.onSend({ image: imageUrl });
         }
       }
@@ -84,32 +84,42 @@ export default class CustomActions extends React.Component {
   };
 
   // storing images and converting to BLOB
-  uploadImageFetch = async (uri) => {
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
-    });
+  storeImage = async (uri) => {
+    try {
+      const { props } = this.props;
+      const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          resolve(xhr.response);
+        };
+        xhr.onerror = function (e) {
+          console.log(e);
+          reject(new TypeError('Request Failed'));
+        };
+        xhr.responseType = 'blob';
+        xhr.open('GET', uri, true);
+        xhr.send(null);
+      });
 
-    const imageNameBefore = uri.split("/");
-    const imageName = imageNameBefore[imageNameBefore.length - 1];
+      // create name for file
+      const imageNameBefore = uri.split('/');
+      const imageName = imageNameBefore[imageNameBefore.length - 1];
 
-    const ref = firebase.storage().ref().child('myimage1', 'myimage2', 'myimage3');
+      const ref = firebase.storage().ref().child(`images/${imageName}`);
+      // console.log('ref', ref);
 
-    const snapshot = await ref.put(blob);
+      const snapshot = await ref.put(blob);
+      console.log('snapshot', snapshot);
+      blob.close();
 
-    blob.close();
-
-    return await snapshot.ref.getDownloadURL();
-  };
+      const imageDownload = await snapshot.ref.getDownloadURL();
+      console.log(imageDownload);
+      return imageDownload;
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
 
   //permission for location
   getLocation = async () => {

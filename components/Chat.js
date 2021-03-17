@@ -1,6 +1,6 @@
 import React from 'react';
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
-import { StyleSheet, View, Text, Button, Platform, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, Text, Button, Platform, KeyboardAvoidingView, LogBox } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import MapView from 'react-native-maps';
@@ -23,7 +23,8 @@ export default class Chat extends React.Component {
       },
       loggedInText: 'Please wait, you are getting logged in.',
       isConnected: false,
-      image: null
+      image: null,
+      location: null
     }
     //connecting to database
     const firebaseConfig = {
@@ -44,7 +45,15 @@ export default class Chat extends React.Component {
 
     this.referenceChatMessages = firebase.firestore().collection('messages');
     firebase.firestore().collection('messages').doc('messages');
+
+    // to ignore warnings
+    LogBox.ignoreLogs([
+      'Setting a timer',
+      'Animated.event now requires a second argument for options',
+      'Cannot update a component from inside'
+    ])
   }
+
   // Updates messages state
   onCollectionUpdate = (querySnapshot) => {
     const messages = [];
