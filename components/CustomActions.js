@@ -5,9 +5,40 @@ import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import firebase from 'firebase';
-import firestore from 'firebase';
+import 'firebase/firestore';
 
 export default class CustomActions extends React.Component {
+
+  //action buttons for users to take photos, share location, see library 
+
+  onActionPress = () => {
+    const options = ['Choose From Library', 'Take Picture', 'Send Location', 'Cancel'];
+    const cancelButtonIndex = options.length - 1;
+    this.context.actionSheet().showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+      },
+      async (buttonIndex) => {
+        switch (buttonIndex) {
+          case 0:
+            console.log('user wants to pick an image');
+            return this.imagePicker();
+          case 1:
+            console.log('user wants to take a photo');
+            return this.takePhoto();
+          case 2:
+            console.log('user wants to get their location');
+            return this.getLocation();
+          default:
+        }
+      },
+    );
+  };
+
+  //permission requests before any use of Phone functionalities 
+
+  //permission for library 
 
   imagePicker = async () => {
     // expo permission
@@ -28,6 +59,8 @@ export default class CustomActions extends React.Component {
       console.log(error.message);
     }
   };
+
+  //permission for camera
 
   takePhoto = async () => {
     const { status } = await Permissions.askAsync(
@@ -50,29 +83,7 @@ export default class CustomActions extends React.Component {
     }
   };
 
-  getLocation = async () => {
-    try {
-      const { status } = await Permissions.askAsync(Permissions.LOCATION);
-      if (status === "granted") {
-        const result = await Location.getCurrentPositionAsync(
-          {}
-        ).catch((error) => console.log(error));
-        const longitude = JSON.stringify(result.coords.longitude);
-        const altitude = JSON.stringify(result.coords.latitude);
-        if (result) {
-          this.props.onSend({
-            location: {
-              longitude: result.coords.longitude,
-              latitude: result.coords.latitude,
-            },
-          });
-        }
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
+  // storing images and converting to BLOB
   uploadImageFetch = async (uri) => {
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -100,39 +111,38 @@ export default class CustomActions extends React.Component {
     return await snapshot.ref.getDownloadURL();
   };
 
-  onActionPress = () => {
-    const options = ['Choose From Library', 'Take Picture', 'Send Location', 'Cancel'];
-    const cancelButtonIndex = options.length - 1;
-    this.context.actionSheet().showActionSheetWithOptions(
-      {
-        options,
-        cancelButtonIndex,
-      },
-      async (buttonIndex) => {
-        switch (buttonIndex) {
-          case 0:
-            console.log('user wants to pick an image');
-            return;
-          case 1:
-            console.log('user wants to take a photo');
-            return;
-          case 2:
-            console.log('user wants to get their location');
-          default:
+  //permission for location
+  getLocation = async () => {
+    try {
+      const { status } = await Permissions.askAsync(Permissions.LOCATION);
+      if (status === "granted") {
+        const result = await Location.getCurrentPositionAsync(
+          {}
+        ).catch((error) => console.log(error));
+        const longitude = JSON.stringify(result.coords.longitude);
+        const altitude = JSON.stringify(result.coords.latitude);
+        if (result) {
+          this.props.onSend({
+            location: {
+              longitude: result.coords.longitude,
+              latitude: result.coords.latitude,
+            },
+          });
         }
-      },
-    );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   render() {
     return (
       <TouchableOpacity
         accessible={true}
-        accessibilityLabel="More options"
-        accessibilityHint="Let’s you choose to send an image or your geolocation."
+        accessibilityLabel="More Options"
+        accessibilityHint="Let's you choose to send image or location."
         style={[styles.container]}
-        onPress={this.onActionPress}
-      >
+        onPress={this.onActionPress}>
         <View style={[styles.wrapper, this.props.wrapperStyle]}>
           <Text style={[styles.iconText, this.props.iconTextStyle]}>+</Text>
         </View>
@@ -164,5 +174,5 @@ const styles = StyleSheet.create({
 });
 
 CustomActions.contextTypes = {
-  actionSheet: PropTypes.func,
+  actionSheet: PropTypes.func
 };
