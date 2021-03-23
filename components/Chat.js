@@ -162,8 +162,10 @@ export default class Chat extends React.Component {
         });
         this.getMessages();
       }
-    });
-
+    })
+      .catch((e) => {
+        console.log(e);
+      });
   }
 
   componentWillUnmount() {
