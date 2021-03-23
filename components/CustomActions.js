@@ -113,7 +113,7 @@ export default class CustomActions extends React.Component {
       blob.close();
 
       const imageUrl = await snapshot.ref.getDownloadURL();
-      console.log(imageDownload);
+
       this.props.onSend({ image: imageUrl })
     }
     catch (error) {
