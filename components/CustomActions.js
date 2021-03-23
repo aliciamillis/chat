@@ -86,7 +86,7 @@ export default class CustomActions extends React.Component {
   // storing images and converting to BLOB
   storeImage = async (uri) => {
     try {
-      const { props } = this.props;
+
       const blob = await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.onload = function () {
@@ -112,9 +112,9 @@ export default class CustomActions extends React.Component {
       console.log('snapshot', snapshot);
       blob.close();
 
-      const imageDownload = await snapshot.ref.getDownloadURL();
+      const imageUrl = await snapshot.ref.getDownloadURL();
       console.log(imageDownload);
-      return imageDownload;
+      this.props.onSend({ image: imageUrl })
     }
     catch (error) {
       console.log(error);
