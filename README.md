@@ -1,5 +1,12 @@
 # chat
 
+
+
+
+
+
+https://user-images.githubusercontent.com/69804543/115763157-754bf700-a361-11eb-96b4-3d07fa030746.mp4
+
 This is a portfolio project I build for the Full-Stack Web Development course through CareerFoundry. 
 It is to showcase my skills using React-Native for mobile devices.
 
